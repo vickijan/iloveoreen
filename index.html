@@ -14,15 +14,15 @@
      <script> tag. Search for "CONFIG" to jump there.
      ================================================================ */
 
-  :root{
+ :root{
   --paper: #7D2027;
   --paper-dark: #673C34;
   --kraft: #998731;
-  --kraft-dark: #CF5527;
+  --kraft-dark: #673C34;
   --ink: #F9DEE3;
-  --ink-soft: #E39FAE;
+  --ink-soft: #FAE3B1;
   --sage: #5FABC2;
-  --rose: #F4879C;
+  --rose: #F9DEE3;
   --tape: #FAE3B1;
   --shadow: rgba(0, 0, 0, 0.35);
 }
@@ -268,7 +268,7 @@
 
   /* Song card */
   .song-card{
-    width: 240px;
+    width: 280px;
     padding: 20px;
     display:flex;
     gap: 14px;
@@ -444,11 +444,12 @@ const CONFIG = {
 
   // A song or playlist link.
   song: {
-    label: "a little something to play",
-    title: "add your song or playlist title here",
-    url: "https://open.spotify.com/"
-  },
-
+  label: "a little something to play",
+  title: "your song title here",
+  url: "https://open.spotify.com/track/3SeDS5sSoWnwAZvVgkdKzf",
+  embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
+},
+  
   footerNote: "thank you for caring — miss you, see you soon"
 };
 
@@ -504,23 +505,23 @@ CONFIG.photos.forEach((photo) => {
 
 // Song
 if (CONFIG.song) {
-  const card = document.createElement('a');
-  card.className = 'card song-card';
-  card.href = CONFIG.song.url;
-  card.target = '_blank';
-  card.rel = 'noopener noreferrer';
-  card.style.textDecoration = 'none';
-  card.style.color = 'inherit';
-  card.innerHTML = `
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card song-card';
+  wrapper.style.flexDirection = 'column';
+  wrapper.style.alignItems = 'stretch';
+  wrapper.style.cursor = 'default';
+  wrapper.innerHTML = `
     <div class="tape"></div>
-    <div class="vinyl"></div>
-    <div class="song-text">
-      <div class="song-label">${CONFIG.song.label}</div>
-      <div class="song-title">${CONFIG.song.title}</div>
-      <div class="song-link">play it &rarr;</div>
+    <div style="display:flex; gap:14px; align-items:center; margin-bottom: 14px;">
+      <div class="vinyl"></div>
+      <div class="song-text">
+        <div class="song-label">${CONFIG.song.label}</div>
+        <div class="song-title">${CONFIG.song.title}</div>
+      </div>
     </div>
+    ${CONFIG.song.embed ? `<iframe style="border-radius:12px" src="${CONFIG.song.embed}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>` : ''}
   `;
-  grid.appendChild(card);
+  grid.appendChild(wrapper);
 }
 
 // Decorative doodle stickers (little virtual gifts)
