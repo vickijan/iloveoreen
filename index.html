@@ -131,12 +131,91 @@
     font-size: 1.25rem;
   }
 
+  /* ---------------- Letter overlay ---------------- */
+
+  #letter-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 40;
+  }
+
+  #letter-overlay.visible{ display: flex; }
+
+  .letter-paper{
+    position: relative;
+    background: var(--ink-soft);
+    color: var(--paper);
+    max-width: 480px;
+    width: 100%;
+    max-height: 82vh;
+    overflow-y: auto;
+    padding: 40px 34px;
+    border-radius: 4px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+    font-family: 'IBM Plex Serif', serif;
+    line-height: 1.6;
+    animation: letterIn 0.35s ease;
+  }
+
+  @keyframes letterIn{
+    from{ opacity: 0; transform: translateY(16px) scale(0.98); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .letter-title{
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    color: var(--paper);
+    margin-bottom: 16px;
+  }
+
+  .letter-body{ font-size: 1.05rem; white-space: pre-line; }
+
+  #letter-close{
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--paper);
+  }
+
+  #reread-letter{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--kraft);
+    color: var(--ink);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 6px 16px var(--shadow);
+    display: none;
+    z-index: 30;
+    transition: transform 0.2s ease;
+  }
+
+  #reread-letter:hover{ transform: translateY(-2px); }
+
+  #reread-letter.visible{ display: inline-flex; align-items: center; gap: 6px; }
+
   /* ---------------- Board scene ---------------- */
 
   #board{
     max-width: 880px;
     margin: 0 auto;
-    padding: 48px 20px 100px;
+    padding: 64px 20px 140px;
     opacity: 0;
     transform: translateY(18px);
     transition: opacity 0.7s ease, transform 0.7s ease;
@@ -146,7 +225,7 @@
 
   .board-header{
     text-align:center;
-    margin-bottom: 44px;
+    margin-bottom: 64px;
   }
 
   .board-eyebrow{
@@ -159,6 +238,7 @@
     font-size: clamp(1.8rem, 4vw, 2.6rem);
     font-weight: 700;
     margin-top: 4px;
+    color: var(--sage);
   }
 
   .board-sub{
@@ -173,7 +253,7 @@
   .grid{
     display: flex;
     flex-wrap: wrap;
-    gap: 28px;
+    gap: 44px;
     justify-content: center;
     align-items: flex-start;
   }
@@ -268,12 +348,12 @@
 
   /* Song card */
   .song-card{
-  width: 320px;
-  padding: 20px;
-  display:flex;
-  gap: 14px;
-  align-items:center;
-}
+    width: 320px;
+    padding: 20px;
+    display:flex;
+    gap: 14px;
+    align-items:center;
+  }
 
   .vinyl{
     width: 56px;
@@ -341,7 +421,7 @@
   .footer-note{
     text-align:center;
     margin-top: 56px;
-    font-family:'IBM Plex', serif;
+    font-family:'IBM Plex Serif', serif;
     font-size: 1.4rem;
     color: var(--ink-soft);
   }
@@ -387,6 +467,18 @@
     <div class="tap-hint">tap the box to open it</div>
   </section>
 
+  <!-- ============ LETTER OVERLAY ============ -->
+  <div id="letter-overlay">
+    <div class="letter-paper">
+      <button id="letter-close" aria-label="Close letter">&times;</button>
+      <div class="letter-title" id="letter-title"></div>
+      <div class="letter-body" id="letter-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ REREAD LETTER BUTTON ============ -->
+  <button id="reread-letter">reread the letter &#9993;</button>
+
   <!-- ============ BOARD SCENE ============ -->
   <section id="board" aria-live="polite">
     <div class="board-header">
@@ -413,8 +505,14 @@
    ================================================================== */
 const CONFIG = {
   toName: "To: Oreen",              // who it's for
-  fromName: "From: Vicki",               // who it's from
-  eventName: "Happy 22nd Birthday <3",  // e.g. "Friendsgiving" or "your birthday party"
+  fromName: "From: Vicki",          // who it's from
+  eventName: "Happy 22nd Birthday <3",
+
+  // The letter that pops up right after the tin opens.
+  letter: {
+    title: "Dear Oreen,",
+    body: "Happy birthday to my favorite person! I put this whole little box together because I wanted you to have something to open even though I couldn't be there in person.\n\nI hope this year brings you everything you deserve. I love you so much.\n\nLove,\nVicki"
+  },
 
   boardEyebrow: "to Oreen with love...",
   boardTitle: "a very special birthday box",
@@ -444,12 +542,12 @@ const CONFIG = {
 
   // A song or playlist link.
   song: {
-  label: "a little something to play",
-  title: "your song title here",
-  url: "https://open.spotify.com/track/3SeDS5sSoWnwAZvVgkdKzf",
-  embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
-},
-  
+    label: "a little something to play",
+    title: "your song title here",
+    url: "https://open.spotify.com/track/3SeDS5sSoWnwAZvVgkdKzf",
+    embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
+  },
+
   footerNote: "love you so much — miss you, see you soon"
 };
 
@@ -461,6 +559,8 @@ document.getElementById('board-eyebrow').textContent = CONFIG.boardEyebrow;
 document.getElementById('board-title').textContent = CONFIG.boardTitle;
 document.getElementById('board-sub').textContent = CONFIG.boardSub;
 document.getElementById('footer-note').textContent = CONFIG.footerNote;
+document.getElementById('letter-title').textContent = CONFIG.letter.title;
+document.getElementById('letter-body').textContent = CONFIG.letter.body;
 
 const grid = document.getElementById('grid');
 
@@ -537,16 +637,44 @@ doodles.forEach((svg) => {
   grid.appendChild(s);
 });
 
-// Cover -> board transition
+// ---------------- Cover -> letter -> board flow ----------------
 const cover = document.getElementById('cover');
 const board = document.getElementById('board');
+const letterOverlay = document.getElementById('letter-overlay');
+const letterClose = document.getElementById('letter-close');
+const rereadBtn = document.getElementById('reread-letter');
+
 document.getElementById('tin-button').addEventListener('click', () => {
   cover.classList.add('opening');
   setTimeout(() => {
     cover.classList.add('hidden');
-    board.classList.add('visible');
-    board.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Show the letter first, instead of jumping straight to the board.
+    letterOverlay.classList.add('visible');
   }, 450);
+});
+
+function revealBoardIfNeeded(){
+  if (!board.classList.contains('visible')) {
+    board.classList.add('visible');
+    rereadBtn.classList.add('visible');
+    board.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function closeLetter(){
+  letterOverlay.classList.remove('visible');
+  revealBoardIfNeeded();
+}
+
+letterClose.addEventListener('click', closeLetter);
+// Clicking the dark backdrop (outside the letter itself) also closes it.
+letterOverlay.addEventListener('click', (e) => {
+  if (e.target === letterOverlay) closeLetter();
+});
+
+// The little tab that lets your friend reread the letter anytime.
+rereadBtn.addEventListener('click', () => {
+  letterOverlay.classList.add('visible');
 });
 
 // Lightbox
