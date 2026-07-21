@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>you've got mail!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Caveat:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600&display=swap" rel="stylesheet">
+<style>
+  /* ================================================================
+     EDIT ME! Everything you'll want to personalize lives right here
+     or in the CONFIG object near the bottom of this file, in the
+     <script> tag. Search for "CONFIG" to jump there.
+     ================================================================ */
+
+ :root{
+  --paper: #7D2027;
+  --paper-dark: #673C34;
+  --kraft: #998731;
+  --kraft-dark: #673C34;
+  --ink: #F9DEE3;
+  --ink-soft: #FAE3B1;
+  --sage: #5FABC2;
+  --rose: #F9DEE3;
+  --tape: #FAE3B1;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  body{
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(46,42,36,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  h1, h2, h3{
+    font-family: 'Fraunces', serif;
+    margin: 0;
+  }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap;
+  }
+
+  button{ font-family: inherit; }
+
+  /* ---------------- Cover scene: the tin ---------------- */
+
+  #cover{
+    min-height: 100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 32px 20px;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+
+  #cover.hidden{
+    opacity: 0;
+    visibility: hidden;
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+  .cover-label{
+    font-family:'IBM Plex Serif', serif;
+    font-size: 1.3rem;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .cover-names{
+    font-family:'Fraunces', serif;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 600;
+    margin-bottom: 28px;
+    line-height: 1.3;
+  }
+
+  .cover-names .to{ color: var(--rose); }
+  .cover-names .from{ color: var(--sage); }
+
+  #tin-button{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #tin-button svg{
+    width: min(280px, 70vw);
+    height: auto;
+    filter: drop-shadow(0 18px 24px var(--shadow));
+    transition: transform 0.35s ease;
+  }
+
+  #tin-button:hover svg{ transform: translateY(-4px) rotate(-1deg); }
+  #tin-button:focus-visible svg{ outline: 3px solid var(--sage); outline-offset: 6px; border-radius: 16px; }
+
+  #tin-lid{
+    transform-origin: 50% 88%;
+    transition: transform 0.55s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  #cover.opening #tin-lid{
+    transform: translateY(-70px) rotate(-18deg);
+  }
+
+  .tap-hint{
+    margin-top: 22px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-family:'IBM Plex Serif', serif;
+    font-size: 1.25rem;
+  }
+
+  /* ---------------- Letter overlay ---------------- */
+
+  #letter-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 40;
+  }
+
+  #letter-overlay.visible{ display: flex; }
+
+  .letter-paper{
+    position: relative;
+    background: var(--ink-soft);
+    color: var(--paper);
+    max-width: 480px;
+    width: 100%;
+    max-height: 82vh;
+    overflow-y: auto;
+    padding: 40px 34px;
+    border-radius: 4px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+    font-family: 'IBM Plex Serif', serif;
+    line-height: 1.6;
+    animation: letterIn 0.35s ease;
+  }
+
+  @keyframes letterIn{
+    from{ opacity: 0; transform: translateY(16px) scale(0.98); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .letter-title{
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    color: var(--paper);
+    margin-bottom: 16px;
+  }
+
+  .letter-body{ font-size: 1.05rem; white-space: pre-line; }
+
+  #letter-close{
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--paper);
+  }
+
+  #reread-letter{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--kraft);
+    color: var(--ink);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 6px 16px var(--shadow);
+    display: none;
+    z-index: 30;
+    transition: transform 0.2s ease;
+  }
+
+  #reread-letter:hover{ transform: translateY(-2px); }
+
+  #reread-letter.visible{ display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ---------------- Board scene ---------------- */
+
+  #board{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 64px 20px 140px;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  #board.visible{ opacity: 1; transform: translateY(0); }
+
+  .board-header{
+    text-align:center;
+    margin-bottom: 64px;
+  }
+
+  .board-eyebrow{
+    font-family:'IBM Plex Serif', serif;
+    color: var(--rose);
+    font-size: 1.3rem;
+  }
+
+  .board-title{
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700;
+    margin-top: 4px;
+    color: var(--sage);
+  }
+
+  .board-sub{
+    color: var(--ink-soft);
+    margin-top: 10px;
+    font-size: 1rem;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .grid{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 44px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .card{
+    background: var(--paper-dark);
+    border-radius: 2px;
+    box-shadow: 0 10px 22px var(--shadow);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .card:hover{ transform: translateY(-6px) rotate(0deg) !important; box-shadow: 0 16px 28px var(--shadow); }
+  .card:focus-visible{ outline: 3px solid var(--sage); outline-offset: 3px; }
+
+  .card:nth-child(odd){ transform: rotate(-2.5deg); }
+  .card:nth-child(even){ transform: rotate(2deg); }
+
+  .tape{
+    position:absolute;
+    top:-14px;
+    left:50%;
+    transform:translateX(-50%) rotate(-3deg);
+    width:64px;
+    height:26px;
+    background: var(--tape);
+    opacity:0.85;
+    box-shadow: 0 2px 3px var(--shadow);
+  }
+
+  /* Note cards */
+  .note-card{
+    width: 240px;
+    min-height: 170px;
+    padding: 22px 20px;
+    font-family:'IBM Plex Serif', serif;
+    font-size: 1rem;
+    line-height: 1.35;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .note-title{
+    font-family:'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--rose);
+    margin-bottom: 10px;
+  }
+
+  .note-body{ display:none; color: var(--ink); }
+  .note-teaser{ color: var(--ink-soft); font-size: 1.15rem; }
+  .note-card.open .note-body{ display:block; }
+  .note-card.open .note-teaser{ display:none; }
+
+  /* Photo frames */
+  .photo-card{
+    width: 220px;
+    padding: 14px 14px 34px;
+  }
+
+  .photo-frame{
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: var(--paper);
+    border: 2px dashed var(--kraft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .photo-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .photo-caption{
+    text-align:center;
+    font-family:'IBM Plex Serif', serif;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    color: var(--ink-soft);
+  }
+
+  /* Song card */
+  .song-card{
+    width: 320px;
+    padding: 20px;
+    display:flex;
+    gap: 14px;
+    align-items:center;
+  }
+
+  .vinyl{
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--paper) 0 8px, var(--ink) 9px 10px, #3a352c 11px 100%);
+    flex-shrink:0;
+    transition: transform 0.6s linear;
+  }
+
+  .song-card:hover .vinyl{ transform: rotate(360deg); }
+
+  .song-text{ font-size: 0.95rem; }
+  .song-label{ font-family:'Fraunces', serif; font-weight:600; font-size: 0.95rem; color: var(--sage); }
+  .song-title{ margin-top:2px; }
+  .song-link{ color: var(--rose); text-decoration: underline; font-size: 0.85rem; }
+
+  /* Doodle stickers (decorative, no click needed) */
+  .sticker{
+    width: 90px;
+    height: 90px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:none;
+    background: none;
+    cursor: default;
+  }
+
+  .sticker svg{ width: 100%; height: 100%; transition: transform 0.3s ease; }
+  .sticker:hover svg{ transform: scale(1.12) rotate(-6deg); }
+
+  /* Lightbox */
+  #lightbox{
+    position: fixed;
+    inset: 0;
+    background: rgba(46,42,36,0.85);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    z-index: 50;
+  }
+
+  #lightbox.visible{ display:flex; }
+
+  #lightbox img{
+    max-width: min(520px, 90vw);
+    max-height: 80vh;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  #lightbox-close{
+    position:absolute;
+    top: 20px;
+    right: 24px;
+    background:none;
+    border:none;
+    color: var(--paper);
+    font-size: 2rem;
+    cursor:pointer;
+    line-height:1;
+  }
+
+  .footer-note{
+    text-align:center;
+    margin-top: 56px;
+    font-family:'IBM Plex Serif', serif;
+    font-size: 1.4rem;
+    color: var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============ COVER SCENE ============ -->
+  <section id="cover">
+    <div class="cover-label">you've got mail!</div>
+    <div class="cover-names">
+      <span class="to" id="to-name"></span> —
+      <span class="from" id="from-name"></span>
+    </div>
+
+    <button id="tin-button" aria-label="Open your care package">
+      <svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="130" cy="190" rx="92" ry="14" fill="var(--shadow)"/>
+        <rect x="34" y="90" width="192" height="100" rx="8" fill="var(--kraft)"/>
+        <rect x="34" y="90" width="192" height="100" rx="8" fill="url(#tinShade)"/>
+        <rect x="46" y="102" width="168" height="76" rx="4" fill="none" stroke="var(--paper)" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
+        <g id="tin-lid">
+          <rect x="26" y="58" width="208" height="46" rx="10" fill="var(--kraft-dark)"/>
+          <rect x="26" y="58" width="208" height="46" rx="10" fill="url(#lidShade)"/>
+          <circle cx="130" cy="58" r="9" fill="var(--rose)"/>
+        </g>
+        <defs>
+          <linearGradient id="tinShade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#000" stop-opacity="0.05"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0.15"/>
+          </linearGradient>
+          <linearGradient id="lidShade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.12"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0.1"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </button>
+    <div class="tap-hint">tap the box to open it</div>
+  </section>
+
+  <!-- ============ LETTER OVERLAY ============ -->
+  <div id="letter-overlay">
+    <div class="letter-paper">
+      <button id="letter-close" aria-label="Close letter">&times;</button>
+      <div class="letter-title" id="letter-title"></div>
+      <div class="letter-body" id="letter-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ REREAD LETTER BUTTON ============ -->
+  <button id="reread-letter">reread the letter &#9993;</button>
+
+  <!-- ============ BOARD SCENE ============ -->
+  <section id="board" aria-live="polite">
+    <div class="board-header">
+      <div class="board-eyebrow" id="board-eyebrow"></div>
+      <h1 class="board-title" id="board-title"></h1>
+      <p class="board-sub" id="board-sub"></p>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <p class="footer-note" id="footer-note"></p>
+  </section>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div id="lightbox">
+    <button id="lightbox-close" aria-label="Close photo">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+<script>
+/* ==================================================================
+   CONFIG — this is the only part you should need to touch.
+   Fill in your own names, note text, photo links, and a song link.
+   ================================================================== */
+const CONFIG = {
+  toName: "To: Oreen",              // who it's for
+  fromName: "From: Vicki",          // who it's from
+  eventName: "Happy 22nd Birthday <3",
+
+  // The letter that pops up right after the tin opens.
+  letter: {
+    title: "Dear Oreen,",
+    body: "Happy birthday to my favorite person! I put this whole little box together because I wanted you to have something to open even though I couldn't be there in person.\n\nI hope this year brings you everything you deserve. I love you so much.\n\nLove,\nVicki"
+  },
+
+  boardEyebrow: "to Oreen with love...",
+  boardTitle: "a very special birthday box",
+  boardSub: "Here's a little digital keepsake you can always fit us in your pocket! Tap around to explore the contents.",
+
+  // Personal notes. Add as many as you want.
+  notes: [
+    {
+      title: "Open me!!!!!",
+      body: "Did a little research and found some coffee shops that I thought were sooo cute in Chi." +
+        " Hope you get to check them out!! When you do, coffee's on me :)"
+    },
+    {
+      title: "Open me too!!!!!!",
+      body: "1. Sawada<br><br>2. Buttercup<br><br>(check your email)"
+    }
+  ],
+
+  // Photos. Replace src with a real image URL (or a link to an uploaded photo).
+  // Leave src empty to show a placeholder frame.
+  photos: [
+    { src: "https://i.imgur.com/0ncMZWB.jpeg", caption: "babe + wifey" },
+    { src: "https://i.imgur.com/2vPhDMV.jpeg", caption: "pretend these are for u K" },
+    { src: "https://i.imgur.com/bBw9Ils.jpeg", caption: "the chewy to my anakin" },
+    { src: "https://i.imgur.com/fIphYvt.jpeg", caption: "TFB 4EVER" }
+  ],
+
+  // A song or playlist link.
+  song: {
+    label: "a little something to play",
+    title: "your song title here",
+    url: "https://open.spotify.com/track/3SeDS5sSoWnwAZvVgkdKzf",
+    embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
+  },
+
+  footerNote: "love you so much — miss you, see you soon"
+};
+
+/* ================= rendering (no need to edit below) ================= */
+
+document.getElementById('to-name').textContent = CONFIG.toName;
+document.getElementById('from-name').textContent = CONFIG.fromName;
+document.getElementById('board-eyebrow').textContent = CONFIG.boardEyebrow;
+document.getElementById('board-title').textContent = CONFIG.boardTitle;
+document.getElementById('board-sub').textContent = CONFIG.boardSub;
+document.getElementById('footer-note').textContent = CONFIG.footerNote;
+document.getElementById('letter-title').textContent = CONFIG.letter.title;
+document.getElementById('letter-body').textContent = CONFIG.letter.body;
+
+const grid = document.getElementById('grid');
+
+// Notes
+CONFIG.notes.forEach((note) => {
+  const card = document.createElement('div');
+  card.className = 'card note-card';
+  card.tabIndex = 0;
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-expanded', 'false');
+  card.innerHTML = `
+    <div class="tape"></div>
+    <div class="note-title">${note.title}</div>
+    <div class="note-teaser">tap to read &rarr;</div>
+    <div class="note-body">${note.body}</div>
+  `;
+  const toggle = () => {
+    const isOpen = card.classList.toggle('open');
+    card.setAttribute('aria-expanded', String(isOpen));
+  };
+  card.addEventListener('click', toggle);
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+  grid.appendChild(card);
+});
+
+// Photos
+CONFIG.photos.forEach((photo) => {
+  const card = document.createElement('div');
+  card.className = 'card photo-card';
+  card.tabIndex = photo.src ? 0 : -1;
+  card.innerHTML = `
+    <div class="tape"></div>
+    <div class="photo-frame">${photo.src ? `<img src="${photo.src}" alt="${photo.caption || 'photo'}">` : 'add a photo here'}</div>
+    <div class="photo-caption">${photo.caption || ''}</div>
+  `;
+  if (photo.src) {
+    card.addEventListener('click', () => openLightbox(photo.src, photo.caption));
+    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(photo.src, photo.caption); } });
+  }
+  grid.appendChild(card);
+});
+
+// Song
+if (CONFIG.song) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card song-card';
+  wrapper.style.flexDirection = 'column';
+  wrapper.style.alignItems = 'stretch';
+  wrapper.style.cursor = 'default';
+  wrapper.innerHTML = `
+    <div class="tape"></div>
+    <div style="display:flex; gap:14px; align-items:center; margin-bottom: 14px;">
+      <div class="vinyl"></div>
+      <div class="song-text">
+        <div class="song-label">${CONFIG.song.label}</div>
+        <div class="song-title">${CONFIG.song.title}</div>
+      </div>
+    </div>
+    ${CONFIG.song.embed ? `<iframe style="border-radius:12px" src="${CONFIG.song.embed}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>` : ''}
+  `;
+  grid.appendChild(wrapper);
+}
+
+// Decorative doodle stickers (little virtual gifts)
+const doodles = [
+  `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="var(--rose)" stroke-width="4"/><path d="M50 20 L50 12 M50 88 L50 80 M20 50 L12 50 M88 50 L80 50" stroke="var(--rose)" stroke-width="4" stroke-linecap="round"/><circle cx="42" cy="45" r="4" fill="var(--ink)"/><circle cx="58" cy="45" r="4" fill="var(--ink)"/><path d="M38 58 Q50 68 62 58" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 100 100"><path d="M50 85 C20 65 10 45 25 30 C35 20 48 25 50 38 C52 25 65 20 75 30 C90 45 80 65 50 85 Z" fill="var(--rose)" opacity="0.85"/></svg>`,
+  `<svg viewBox="0 0 100 100"><path d="M50 10 L60 38 L90 38 L65 55 L75 85 L50 68 L25 85 L35 55 L10 38 L40 38 Z" fill="var(--sage)" opacity="0.9"/></svg>`
+];
+doodles.forEach((svg) => {
+  const s = document.createElement('div');
+  s.className = 'card sticker';
+  s.innerHTML = svg;
+  grid.appendChild(s);
+});
+
+// ---------------- Cover -> letter -> board flow ----------------
+const cover = document.getElementById('cover');
+const board = document.getElementById('board');
+const letterOverlay = document.getElementById('letter-overlay');
+const letterClose = document.getElementById('letter-close');
+const rereadBtn = document.getElementById('reread-letter');
+
+document.getElementById('tin-button').addEventListener('click', () => {
+  cover.classList.add('opening');
+  setTimeout(() => {
+    cover.classList.add('hidden');
+    // Show the letter first, instead of jumping straight to the board.
+    letterOverlay.classList.add('visible');
+  }, 450);
+});
+
+function revealBoardIfNeeded(){
+  if (!board.classList.contains('visible')) {
+    board.classList.add('visible');
+    rereadBtn.classList.add('visible');
+    board.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function closeLetter(){
+  letterOverlay.classList.remove('visible');
+  revealBoardIfNeeded();
+}
+
+letterClose.addEventListener('click', closeLetter);
+// Clicking the dark backdrop (outside the letter itself) also closes it.
+letterOverlay.addEventListener('click', (e) => {
+  if (e.target === letterOverlay) closeLetter();
+});
+
+// The little tab that lets your friend reread the letter anytime.
+rereadBtn.addEventListener('click', () => {
+  letterOverlay.classList.add('visible');
+});
+
+// Lightbox
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+function openLightbox(src, alt){
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || '';
+  lightbox.classList.add('visible');
+}
+document.getElementById('lightbox-close').addEventListener('click', () => lightbox.classList.remove('visible'));
+lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('visible'); });
+</script>
+</body>
+</html>
