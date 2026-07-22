@@ -27,6 +27,20 @@
   --shadow: rgba(0, 0, 0, 0.35);
 }
 
+  .doodle-float{
+  position: absolute;
+  width: 90px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.doodle-float img{
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 10px var(--shadow));
+}
+
   *{ box-sizing: border-box; }
 
   html, body{
@@ -548,6 +562,26 @@ const CONFIG = {
     embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
   },
 
+  stickers: [
+  { src: "https://i.imgur.com/9LvHbVl.png", top: "8%",  left: "6%",  rotate: "-8deg", width: "80px" },   // heart, upper left
+  { src: "https://i.imgur.com/kE0j4Lb.png", top: "10%", left: "82%", rotate: "10deg", width: "85px" },   // star, upper right
+  { src: "https://i.imgur.com/gPuiK2d.png", top: "48%", left: "88%", rotate: "-5deg", width: "90px" },   // waldo, right middle
+  { src: "https://i.imgur.com/QcRsMpM.png", top: "48%", left: "4%",  rotate: "6deg",  width: "90px" },   // cake, left middle
+  { src: "https://i.imgur.com/OsMyfEQ.png", top: "70%", left: "50%", rotate: "-4deg", width: "75px" }    // pepper, extra space
+],
+
+  // Floating image stickers, scattered across the page
+CONFIG.stickers.forEach((sticker) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'doodle-float';
+  wrap.style.top = sticker.top;
+  wrap.style.left = sticker.left;
+  wrap.style.width = sticker.width || '90px';
+  wrap.style.transform = `rotate(${sticker.rotate || '0deg'})`;
+  wrap.innerHTML = `<img src="${sticker.src}" alt="">`;
+  document.body.appendChild(wrap);
+});
+
   footerNote: "love you so much — miss you, see you soon"
 };
 
@@ -623,19 +657,6 @@ if (CONFIG.song) {
   `;
   grid.appendChild(wrapper);
 }
-
-// Decorative doodle stickers (little virtual gifts)
-const doodles = [
-  `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="var(--rose)" stroke-width="4"/><path d="M50 20 L50 12 M50 88 L50 80 M20 50 L12 50 M88 50 L80 50" stroke="var(--rose)" stroke-width="4" stroke-linecap="round"/><circle cx="42" cy="45" r="4" fill="var(--ink)"/><circle cx="58" cy="45" r="4" fill="var(--ink)"/><path d="M38 58 Q50 68 62 58" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg>`,
-  `<svg viewBox="0 0 100 100"><path d="M50 85 C20 65 10 45 25 30 C35 20 48 25 50 38 C52 25 65 20 75 30 C90 45 80 65 50 85 Z" fill="var(--rose)" opacity="0.85"/></svg>`,
-  `<svg viewBox="0 0 100 100"><path d="M50 10 L60 38 L90 38 L65 55 L75 85 L50 68 L25 85 L35 55 L10 38 L40 38 Z" fill="var(--sage)" opacity="0.9"/></svg>`
-];
-doodles.forEach((svg) => {
-  const s = document.createElement('div');
-  s.className = 'card sticker';
-  s.innerHTML = svg;
-  grid.appendChild(s);
-});
 
 // ---------------- Cover -> letter -> board flow ----------------
 const cover = document.getElementById('cover');
