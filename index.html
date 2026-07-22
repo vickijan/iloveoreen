@@ -143,7 +143,7 @@
     font-size: clamp(1rem, 2.2vh, 1.25rem);
   }
 
-  /* ---------------- Shared overlay style (letter + note/song popups) ---------------- */
+  /* ---------------- Shared overlay style (letter + note popups) ---------------- */
 
   .overlay{
     position: fixed;
@@ -278,7 +278,7 @@
   .grid{
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-auto-rows: clamp(90px, 15vh, 160px);
+    grid-auto-rows: minmax(clamp(90px, 15vh, 160px), auto);
     gap: clamp(16px, 2.8vh, 28px);
     max-width: 800px;
     width: 100%;
@@ -328,7 +328,7 @@
     z-index: 2;
   }
 
-  /* Note & song tiles — compact icon + label, full content opens in an overlay */
+  /* Note tiles — compact icon + label, full content opens in an overlay */
   .tile-card{
     background: var(--paper-dark);
     display:flex;
@@ -394,11 +394,34 @@
 
   .tile-card:hover .vinyl{ transform: rotate(360deg); }
 
-  .song-overlay-embed{ margin-top: 10px; }
+  /* Song tile — spans 2 grid columns (the width of the two tiles above it),
+     and shows the player directly instead of opening on tap. */
+  .song-embed-tile{
+    grid-column: span 2;
+    --rot: 0deg;
+    --offset: 0px;
+    background: var(--paper-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    cursor: default;
+  }
+
+  .song-embed-tile .tile-row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .song-embed-tile .tile-label{ font-size: clamp(0.7rem, 1.5vh, 0.9rem); }
+
+  .song-embed-tile iframe{ width: 100%; display: block; border: none; }
 
   .footer-note{
     text-align:center;
-    margin-top: clamp(14px, 2.5vh, 28px);
+    margin-top: clamp(24px, 4.5vh, 40px);
     font-family:'IBM Plex Serif', serif;
     font-size: clamp(0.9rem, 2vh, 1.2rem);
     color: var(--ink-soft);
@@ -487,7 +510,7 @@
     </div>
   </div>
 
-  <!-- ============ NOTE / SONG CONTENT OVERLAY (shared) ============ -->
+  <!-- ============ NOTE CONTENT OVERLAY (shared) ============ -->
   <div id="content-overlay" class="overlay">
     <div class="overlay-paper">
       <button class="overlay-close" id="content-close" aria-label="Close">&times;</button>
@@ -538,8 +561,8 @@ const CONFIG = {
   boardTitle: "a very special birthday box",
   boardSub: "Here's a little digital keepsake you can always fit us in your pocket! Tap around to explore.",
 
-  // Notes now open in a popup when tapped, instead of expanding in place.
-  // Add a "photo" URL to show an image inside the popup. Leave it "" for none.
+  // Notes open in a popup when tapped. Add a "photo" URL to show an image
+  // inside the popup. Leave photo empty ("") for a note with no image.
   notes: [
     {
       title: "Open me!!!!!",
@@ -561,7 +584,7 @@ const CONFIG = {
     { src: "https://i.imgur.com/fIphYvt.jpeg", caption: "TFB 4EVER" }
   ],
 
-  // A song or playlist link — tapping the tile opens the player in a popup.
+  // A song or playlist link — shown as a wide, always-visible embedded player.
   song: {
     label: "a little something to play",
     title: "",
@@ -579,7 +602,7 @@ const CONFIG = {
     { src: "https://i.imgur.com/OsMyfEQ.png", top: "74%", left: "4%",  rotate: "-4deg", width: "88px" }
   ],
 
-  footerNote: "love you so much — miss you, see you soon"
+  footerNote: "love you so much — miss you, see you soon <3"
 };
 
 /* ================= rendering (no need to edit below) ================= */
@@ -595,7 +618,7 @@ document.getElementById('letter-body').textContent = CONFIG.letter.body;
 
 const grid = document.getElementById('grid');
 
-// Shared content overlay (used by notes and the song tile)
+// Shared content overlay (used by notes)
 const contentOverlay = document.getElementById('content-overlay');
 const contentTitle = document.getElementById('content-title');
 const contentInner = document.getElementById('content-inner');
@@ -645,25 +668,18 @@ CONFIG.photos.forEach((photo) => {
   grid.appendChild(card);
 });
 
-// Song — compact tile, tap opens the player in the shared overlay
+// Song — wide tile spanning the width of the two tiles above it, player always visible
 if (CONFIG.song) {
   const card = document.createElement('div');
-  card.className = 'card tile-card';
-  card.tabIndex = 0;
-  card.setAttribute('role', 'button');
+  card.className = 'card song-embed-tile';
   card.innerHTML = `
     <div class="tape"></div>
-    <div class="vinyl"></div>
-    <div class="tile-label">${CONFIG.song.label}</div>
+    <div class="tile-row">
+      <div class="vinyl"></div>
+      <div class="tile-label">${CONFIG.song.label}</div>
+    </div>
+    ${CONFIG.song.embed ? `<iframe src="${CONFIG.song.embed}" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>` : ''}
   `;
-  const open = () => {
-    const embedHtml = CONFIG.song.embed
-      ? `<div class="song-overlay-embed"><iframe style="border-radius:12px" src="${CONFIG.song.embed}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>`
-      : '';
-    openContent(CONFIG.song.title, embedHtml);
-  };
-  card.addEventListener('click', open);
-  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
   grid.appendChild(card);
 }
 
