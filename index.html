@@ -27,8 +27,33 @@
   --shadow: rgba(0, 0, 0, 0.35);
 }
 
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden; /* the whole page never scrolls */
+  }
+
+  body{
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(46,42,36,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  h1, h2, h3{
+    font-family: 'Fraunces', serif;
+    margin: 0;
+  }
+
+  button{ font-family: inherit; }
+
   .doodle-float{
-    position: absolute;
+    position: fixed;
     width: 90px;
     pointer-events: none;
     z-index: 1;
@@ -45,54 +70,24 @@
     filter: drop-shadow(0 6px 10px var(--shadow));
   }
 
-  *{ box-sizing: border-box; }
-
-  html, body{
-    margin:0;
-    padding:0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  body{
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(46,42,36,0.05) 1px, transparent 0);
-    background-size: 22px 22px;
-  }
-
-  h1, h2, h3{
-    font-family: 'Fraunces', serif;
-    margin: 0;
-  }
-
-  .visually-hidden{
-    position:absolute; width:1px; height:1px; overflow:hidden;
-    clip:rect(0,0,0,0); white-space:nowrap;
-  }
-
-  button{ font-family: inherit; }
-
   /* ---------------- Cover scene: the tin ---------------- */
 
   #cover{
-    min-height: 100vh;
+    position: absolute;
+    inset: 0;
+    height: 100vh;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding: 32px 20px;
+    padding: 24px;
     transition: opacity 0.6s ease, visibility 0.6s ease;
   }
 
   #cover.hidden{
     opacity: 0;
     visibility: hidden;
-    position:absolute;
-    inset:0;
     pointer-events:none;
   }
 
@@ -105,9 +100,9 @@
 
   .cover-names{
     font-family:'Fraunces', serif;
-    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-size: clamp(1.4rem, 4.5vh, 2.4rem);
     font-weight: 600;
-    margin-bottom: 28px;
+    margin-bottom: clamp(16px, 3vh, 28px);
     line-height: 1.3;
   }
 
@@ -123,7 +118,7 @@
   }
 
   #tin-button svg{
-    width: min(280px, 70vw);
+    width: min(260px, 55vh, 65vw);
     height: auto;
     filter: drop-shadow(0 18px 24px var(--shadow));
     transition: transform 0.35s ease;
@@ -142,16 +137,15 @@
   }
 
   .tap-hint{
-    margin-top: 22px;
-    font-size: 0.95rem;
+    margin-top: clamp(12px, 2.5vh, 22px);
     color: var(--ink-soft);
     font-family:'IBM Plex Serif', serif;
-    font-size: 1.25rem;
+    font-size: clamp(1rem, 2.2vh, 1.25rem);
   }
 
-  /* ---------------- Letter overlay ---------------- */
+  /* ---------------- Shared overlay style (letter + note/song popups) ---------------- */
 
-  #letter-overlay{
+  .overlay{
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.55);
@@ -162,9 +156,9 @@
     z-index: 40;
   }
 
-  #letter-overlay.visible{ display: flex; }
+  .overlay.visible{ display: flex; }
 
-  .letter-paper{
+  .overlay-paper{
     position: relative;
     background: var(--ink-soft);
     color: var(--paper);
@@ -177,24 +171,31 @@
     box-shadow: 0 24px 48px rgba(0,0,0,0.4);
     font-family: 'IBM Plex Serif', serif;
     line-height: 1.6;
-    animation: letterIn 0.35s ease;
+    animation: overlayIn 0.35s ease;
   }
 
-  @keyframes letterIn{
+  @keyframes overlayIn{
     from{ opacity: 0; transform: translateY(16px) scale(0.98); }
     to{ opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  .letter-title{
+  .overlay-title{
     font-family: 'Caveat', cursive;
     font-size: 2rem;
     color: var(--paper);
     margin-bottom: 16px;
   }
 
-  .letter-body{ font-size: 1.05rem; white-space: pre-line; }
+  .overlay-body{ font-size: 1.05rem; white-space: pre-line; }
 
-  #letter-close{
+  .overlay-photo{
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .overlay-close{
     position: absolute;
     top: 12px;
     right: 14px;
@@ -208,15 +209,15 @@
 
   #reread-letter{
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 16px;
+    right: 16px;
     background: var(--kraft);
     color: var(--ink);
     border: none;
-    padding: 10px 16px;
+    padding: 8px 14px;
     border-radius: 20px;
     font-family: 'IBM Plex Serif', serif;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     box-shadow: 0 6px 16px var(--shadow);
     display: none;
@@ -225,35 +226,41 @@
   }
 
   #reread-letter:hover{ transform: translateY(-2px); }
-
   #reread-letter.visible{ display: inline-flex; align-items: center; gap: 6px; }
 
-  /* ---------------- Board scene ---------------- */
+  /* ---------------- Board scene: everything on one screen ---------------- */
 
   #board{
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 64px 20px 140px;
+    position: absolute;
+    inset: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(16px, 3vh, 32px) 20px;
     opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    pointer-events: none;
+    transition: opacity 0.7s ease;
+    overflow-y: auto; /* safety net only — sizing is tuned so this shouldn't be needed */
   }
 
-  #board.visible{ opacity: 1; transform: translateY(0); }
+  #board.visible{ opacity: 1; pointer-events: auto; }
 
   .board-header{
     text-align:center;
-    margin-bottom: 64px;
+    margin-bottom: clamp(14px, 3vh, 30px);
+    flex-shrink: 0;
   }
 
   .board-eyebrow{
     font-family:'IBM Plex Serif', serif;
     color: var(--rose);
-    font-size: 1.3rem;
+    font-size: clamp(0.9rem, 2vh, 1.3rem);
   }
 
   .board-title{
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-size: clamp(1.4rem, 4vh, 2.4rem);
     font-weight: 700;
     margin-top: 4px;
     color: var(--sage);
@@ -261,143 +268,130 @@
 
   .board-sub{
     color: var(--ink-soft);
-    margin-top: 10px;
-    font-size: 1rem;
+    margin-top: 8px;
+    font-size: clamp(0.8rem, 1.8vh, 1rem);
     max-width: 480px;
     margin-left: auto;
     margin-right: auto;
   }
 
   .grid{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 44px;
-    justify-content: center;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: clamp(90px, 15vh, 160px);
+    gap: clamp(10px, 2vh, 20px);
+    max-width: 780px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 620px){
+    .grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 
   .card{
-    background: var(--paper-dark);
-    border-radius: 2px;
-    box-shadow: 0 10px 22px var(--shadow);
     position: relative;
+    border-radius: 6px;
+    overflow: hidden;
     cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 8px 16px var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .card:hover{ transform: translateY(-6px) rotate(0deg) !important; box-shadow: 0 16px 28px var(--shadow); }
-  .card:focus-visible{ outline: 3px solid var(--sage); outline-offset: 3px; }
-
-  .card:nth-child(odd){ transform: rotate(-2.5deg); }
-  .card:nth-child(even){ transform: rotate(2deg); }
+  .card:hover{ transform: translateY(-4px); box-shadow: 0 12px 22px var(--shadow); }
+  .card:focus-visible{ outline: 3px solid var(--sage); outline-offset: 2px; }
 
   .tape{
     position:absolute;
-    top:-14px;
+    top:-8px;
     left:50%;
     transform:translateX(-50%) rotate(-3deg);
-    width:64px;
-    height:26px;
+    width:40px;
+    height:16px;
     background: var(--tape);
     opacity:0.85;
     box-shadow: 0 2px 3px var(--shadow);
+    z-index: 2;
   }
 
-  /* Note cards */
-  .note-card{
-    width: 260px;
-    min-height: 170px;
-    padding: 22px 20px;
-    font-family:'IBM Plex Serif', serif;
-    font-size: 1rem;
-    line-height: 1.35;
+  /* Note & song tiles — compact icon + label, full content opens in an overlay */
+  .tile-card{
+    background: var(--paper-dark);
     display:flex;
     flex-direction:column;
-  }
-
-  .note-title{
-    font-family:'Fraunces', serif;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--rose);
-    margin-bottom: 10px;
-  }
-
-  .note-body{ display:none; color: var(--ink); }
-  .note-teaser{ color: var(--ink-soft); font-size: 1.15rem; }
-  .note-card.open .note-body{ display:block; }
-  .note-card.open .note-teaser{ display:none; }
-
-  .note-photo{
-    width: 100%;
-    border-radius: 4px;
-    display: block;
-    margin-bottom: 12px;
-    cursor: zoom-in;
-  }
-
-  /* Photo frames */
-  .photo-card{
-    width: 220px;
-    padding: 14px 14px 34px;
-  }
-
-  .photo-frame{
-    width: 100%;
-    aspect-ratio: 4/5;
-    background: var(--paper);
-    border: 2px dashed var(--kraft);
-    display:flex;
     align-items:center;
     justify-content:center;
+    gap: 4px;
+    padding: 8px;
     text-align:center;
-    color: var(--ink-soft);
-    font-size: 0.85rem;
-    padding: 12px;
-    overflow: hidden;
   }
 
-  .photo-frame img{
+  .tile-icon{ font-size: clamp(1.3rem, 3.4vh, 1.9rem); }
+
+  .tile-label{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: clamp(0.62rem, 1.4vh, 0.8rem);
+    color: var(--rose);
+    line-height: 1.2;
+  }
+
+  /* Photo tiles — image fills the tile, caption overlays the bottom */
+  .photo-card{ background: var(--paper-dark); }
+
+  .photo-card img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
   }
 
-  .photo-caption{
-    text-align:center;
-    font-family:'IBM Plex Serif', serif;
-    font-size: 1.2rem;
-    margin-top: 10px;
-    color: var(--ink-soft);
-  }
-
-  /* Song card */
-  .song-card{
-    width: 320px;
-    padding: 20px;
+  .photo-card .no-photo{
+    width:100%;
+    height:100%;
     display:flex;
-    gap: 14px;
     align-items:center;
+    justify-content:center;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+    text-align:center;
+    padding: 6px;
   }
 
+  .photo-caption{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    background: rgba(0,0,0,0.45);
+    color: var(--ink-soft);
+    font-family:'IBM Plex Serif', serif;
+    font-size: clamp(0.6rem, 1.3vh, 0.78rem);
+    padding: 3px 6px;
+    text-align:center;
+  }
+
+  /* Song tile vinyl icon */
   .vinyl{
-    width: 56px;
-    height: 56px;
+    width: clamp(30px, 5vh, 40px);
+    height: clamp(30px, 5vh, 40px);
     border-radius: 50%;
-    background: radial-gradient(circle at center, var(--paper) 0 8px, var(--ink) 9px 10px, #3a352c 11px 100%);
-    flex-shrink:0;
+    background: radial-gradient(circle at center, var(--paper-dark) 0 22%, var(--ink) 23% 26%, #3a352c 27% 100%);
     transition: transform 0.6s linear;
   }
 
-  .song-card:hover .vinyl{ transform: rotate(360deg); }
+  .tile-card:hover .vinyl{ transform: rotate(360deg); }
 
-  .song-text{ font-size: 0.95rem; }
-  .song-label{ font-family:'Fraunces', serif; font-weight:600; font-size: 0.95rem; color: var(--sage); }
-  .song-title{ margin-top:2px; }
-  .song-link{ color: var(--rose); text-decoration: underline; font-size: 0.85rem; }
+  .song-overlay-embed{ margin-top: 10px; }
 
-  /* Lightbox */
+  .footer-note{
+    text-align:center;
+    margin-top: clamp(14px, 2.5vh, 28px);
+    font-family:'IBM Plex Serif', serif;
+    font-size: clamp(0.9rem, 2vh, 1.2rem);
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+
+  /* ---------------- Lightbox for full-size photos ---------------- */
   #lightbox{
     position: fixed;
     inset: 0;
@@ -427,14 +421,6 @@
     font-size: 2rem;
     cursor:pointer;
     line-height:1;
-  }
-
-  .footer-note{
-    text-align:center;
-    margin-top: 56px;
-    font-family:'IBM Plex Serif', serif;
-    font-size: 1.4rem;
-    color: var(--ink-soft);
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -479,11 +465,20 @@
   </section>
 
   <!-- ============ LETTER OVERLAY ============ -->
-  <div id="letter-overlay">
-    <div class="letter-paper">
-      <button id="letter-close" aria-label="Close letter">&times;</button>
-      <div class="letter-title" id="letter-title"></div>
-      <div class="letter-body" id="letter-body"></div>
+  <div id="letter-overlay" class="overlay">
+    <div class="overlay-paper">
+      <button class="overlay-close" id="letter-close" aria-label="Close letter">&times;</button>
+      <div class="overlay-title" id="letter-title"></div>
+      <div class="overlay-body" id="letter-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ NOTE / SONG CONTENT OVERLAY (shared) ============ -->
+  <div id="content-overlay" class="overlay">
+    <div class="overlay-paper">
+      <button class="overlay-close" id="content-close" aria-label="Close">&times;</button>
+      <div class="overlay-title" id="content-title"></div>
+      <div id="content-inner"></div>
     </div>
   </div>
 
@@ -515,8 +510,8 @@
    Fill in your own names, note text, photo links, and a song link.
    ================================================================== */
 const CONFIG = {
-  toName: "To: Oreen",              // who it's for
-  fromName: "From: Vicki",          // who it's from
+  toName: "To: Oreen",
+  fromName: "From: Vicki",
   eventName: "Happy 22nd Birthday <3",
 
   // The letter that pops up right after the tin opens.
@@ -527,26 +522,25 @@ const CONFIG = {
 
   boardEyebrow: "to Oreen with love...",
   boardTitle: "a very special birthday box",
-  boardSub: "Here's something of us you can always fit us in your pocket! Tap around to explore the contents.",
+  boardSub: "Here's a little digital keepsake so you can always fit us in your pocket! Tap around to explore.",
 
-  // Personal notes. Add as many as you want.
-  // Add a "photo" URL to any note to show an image once it's opened.
-  // Leave photo empty ("") for a note with no image.
+  // Notes now open in a popup when tapped, instead of expanding in place.
+  // Add a "photo" URL to show an image inside the popup. Leave it "" for none.
   notes: [
     {
       title: "Open me!!!!!",
-      photo: "https://www.tripadvisor.in/Restaurant_Review-g35805-d12715112-Reviews-Sawada_Coffee-Chicago_Illinois.html",
-      body: "Sawada. The military latte seems intriguing."
+      photo: "",
+      body: "Did a little research and found some coffee shops that I thought were sooo cute in Chi." +
+        " Hope you get to check them out!! When you do, coffee's on me :)"
     },
     {
       title: "Open me too!!!!!!",
-      photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPCJL9f3FCGeBqkSLgNMwkWY8myEaGICDOF3fi0tk4-izrO36-cJnzLP8&s=10",
-      body: "Buttercup! This place looks sooo sweet"
+      photo: "",
+      body: "1. Sawada<br><br>2. Buttercup<br><br>(check your email)"
     }
   ],
 
-  // Photos. Replace src with a real image URL (or a link to an uploaded photo).
-  // Leave src empty to show a placeholder frame.
+  // Photos. Replace src with a real image URL. Leave src empty for a placeholder tile.
   photos: [
     { src: "https://i.imgur.com/0ncMZWB.jpeg", caption: "babe + wifey" },
     { src: "https://i.imgur.com/2vPhDMV.jpeg", caption: "pretend these are for u K" },
@@ -554,7 +548,7 @@ const CONFIG = {
     { src: "https://i.imgur.com/fIphYvt.jpeg", caption: "TFB 4EVER" }
   ],
 
-  // A song or playlist link.
+  // A song or playlist link — tapping the tile opens the player in a popup.
   song: {
     label: "a little something to play",
     title: "your song title here",
@@ -562,17 +556,17 @@ const CONFIG = {
     embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
   },
 
-  // Floating image stickers, scattered across the page.
+  // Floating image stickers, scattered across the screen.
   // These only fade in once the tin has been opened.
   stickers: [
-    { src: "https://i.imgur.com/9LvHbVl.png", top: "8%",  left: "6%",  rotate: "-8deg", width: "80px" },   // heart, upper left
-    { src: "https://i.imgur.com/kE0j4Lb.png", top: "10%", left: "82%", rotate: "10deg", width: "85px" },   // star, upper right
-    { src: "https://i.imgur.com/gPuiK2d.png", top: "48%", left: "88%", rotate: "-5deg", width: "90px" },   // waldo, right middle
-    { src: "https://i.imgur.com/QcRsMpM.png", top: "48%", left: "4%",  rotate: "6deg",  width: "90px" },   // cake, left middle
-    { src: "https://i.imgur.com/OsMyfEQ.png", top: "74%", left: "4%",  rotate: "-4deg", width: "97px" }    // pepper, moved left, enlarged 30%, equal spacing between cake and bottom
+    { src: "https://i.imgur.com/9LvHbVl.png", top: "8%",  left: "6%",  rotate: "-8deg", width: "70px" },
+    { src: "https://i.imgur.com/kE0j4Lb.png", top: "10%", left: "82%", rotate: "10deg", width: "75px" },
+    { src: "https://i.imgur.com/gPuiK2d.png", top: "48%", left: "88%", rotate: "-5deg", width: "80px" },
+    { src: "https://i.imgur.com/QcRsMpM.png", top: "48%", left: "4%",  rotate: "6deg",  width: "80px" },
+    { src: "https://i.imgur.com/OsMyfEQ.png", top: "74%", left: "4%",  rotate: "-4deg", width: "88px" }
   ],
 
-  footerNote: "love you so much — miss you, see you soon <3"
+  footerNote: "love you so much — miss you, see you soon"
 };
 
 /* ================= rendering (no need to edit below) ================= */
@@ -588,45 +582,48 @@ document.getElementById('letter-body').textContent = CONFIG.letter.body;
 
 const grid = document.getElementById('grid');
 
-// Notes
+// Shared content overlay (used by notes and the song tile)
+const contentOverlay = document.getElementById('content-overlay');
+const contentTitle = document.getElementById('content-title');
+const contentInner = document.getElementById('content-inner');
+document.getElementById('content-close').addEventListener('click', () => contentOverlay.classList.remove('visible'));
+contentOverlay.addEventListener('click', (e) => { if (e.target === contentOverlay) contentOverlay.classList.remove('visible'); });
+
+function openContent(title, innerHtml){
+  contentTitle.textContent = title;
+  contentInner.innerHTML = innerHtml;
+  contentOverlay.classList.add('visible');
+}
+
+// Notes — compact tile, full text opens in the shared overlay
 CONFIG.notes.forEach((note) => {
   const card = document.createElement('div');
-  card.className = 'card note-card';
+  card.className = 'card tile-card';
   card.tabIndex = 0;
   card.setAttribute('role', 'button');
-  card.setAttribute('aria-expanded', 'false');
   card.innerHTML = `
     <div class="tape"></div>
-    <div class="note-title">${note.title}</div>
-    <div class="note-teaser">tap to read &rarr;</div>
-    <div class="note-body">
-      ${note.photo ? `<img class="note-photo" src="${note.photo}" alt="">` : ''}
-      <div class="note-text">${note.body}</div>
-    </div>
+    <div class="tile-icon">💌</div>
+    <div class="tile-label">${note.title}</div>
   `;
-  const toggle = (e) => {
-    // If they tapped the photo inside an already-open note, zoom it instead of closing the note.
-    if (e.target.classList.contains('note-photo') && card.classList.contains('open')) {
-      openLightbox(e.target.src, note.title);
-      return;
-    }
-    const isOpen = card.classList.toggle('open');
-    card.setAttribute('aria-expanded', String(isOpen));
+  const open = () => {
+    const photoHtml = note.photo ? `<img class="overlay-photo" src="${note.photo}" alt="">` : '';
+    openContent(note.title, `${photoHtml}<div class="overlay-body">${note.body}</div>`);
   };
-  card.addEventListener('click', toggle);
-  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
+  card.addEventListener('click', open);
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
   grid.appendChild(card);
 });
 
-// Photos
+// Photos — thumbnail fills the tile, tap opens full-size lightbox
 CONFIG.photos.forEach((photo) => {
   const card = document.createElement('div');
   card.className = 'card photo-card';
   card.tabIndex = photo.src ? 0 : -1;
   card.innerHTML = `
     <div class="tape"></div>
-    <div class="photo-frame">${photo.src ? `<img src="${photo.src}" alt="${photo.caption || 'photo'}">` : 'add a photo here'}</div>
-    <div class="photo-caption">${photo.caption || ''}</div>
+    ${photo.src ? `<img src="${photo.src}" alt="${photo.caption || 'photo'}">` : '<div class="no-photo">add a photo</div>'}
+    ${photo.caption ? `<div class="photo-caption">${photo.caption}</div>` : ''}
   `;
   if (photo.src) {
     card.addEventListener('click', () => openLightbox(photo.src, photo.caption));
@@ -635,34 +632,35 @@ CONFIG.photos.forEach((photo) => {
   grid.appendChild(card);
 });
 
-// Song
+// Song — compact tile, tap opens the player in the shared overlay
 if (CONFIG.song) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'card song-card';
-  wrapper.style.flexDirection = 'column';
-  wrapper.style.alignItems = 'stretch';
-  wrapper.style.cursor = 'default';
-  wrapper.innerHTML = `
+  const card = document.createElement('div');
+  card.className = 'card tile-card';
+  card.tabIndex = 0;
+  card.setAttribute('role', 'button');
+  card.innerHTML = `
     <div class="tape"></div>
-    <div style="display:flex; gap:14px; align-items:center; margin-bottom: 14px;">
-      <div class="vinyl"></div>
-      <div class="song-text">
-        <div class="song-label">${CONFIG.song.label}</div>
-        <div class="song-title">${CONFIG.song.title}</div>
-      </div>
-    </div>
-    ${CONFIG.song.embed ? `<iframe style="border-radius:12px" src="${CONFIG.song.embed}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>` : ''}
+    <div class="vinyl"></div>
+    <div class="tile-label">${CONFIG.song.label}</div>
   `;
-  grid.appendChild(wrapper);
+  const open = () => {
+    const embedHtml = CONFIG.song.embed
+      ? `<div class="song-overlay-embed"><iframe style="border-radius:12px" src="${CONFIG.song.embed}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>`
+      : '';
+    openContent(CONFIG.song.title, embedHtml);
+  };
+  card.addEventListener('click', open);
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  grid.appendChild(card);
 }
 
-// Floating image stickers — built now, but kept invisible until the box is opened.
+// Floating image stickers — built now, kept invisible until the box is opened
 CONFIG.stickers.forEach((sticker) => {
   const wrap = document.createElement('div');
   wrap.className = 'doodle-float';
   wrap.style.top = sticker.top;
   wrap.style.left = sticker.left;
-  wrap.style.width = sticker.width || '90px';
+  wrap.style.width = sticker.width || '80px';
   wrap.style.transform = `rotate(${sticker.rotate || '0deg'})`;
   wrap.innerHTML = `<img src="${sticker.src}" alt="">`;
   document.body.appendChild(wrap);
@@ -684,7 +682,6 @@ document.getElementById('tin-button').addEventListener('click', () => {
   showStickers();
   setTimeout(() => {
     cover.classList.add('hidden');
-    // Show the letter first, instead of jumping straight to the board.
     letterOverlay.classList.add('visible');
   }, 450);
 });
@@ -693,7 +690,6 @@ function revealBoardIfNeeded(){
   if (!board.classList.contains('visible')) {
     board.classList.add('visible');
     rereadBtn.classList.add('visible');
-    board.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
@@ -703,15 +699,8 @@ function closeLetter(){
 }
 
 letterClose.addEventListener('click', closeLetter);
-// Clicking the dark backdrop (outside the letter itself) also closes it.
-letterOverlay.addEventListener('click', (e) => {
-  if (e.target === letterOverlay) closeLetter();
-});
-
-// The little tab that lets your friend reread the letter anytime.
-rereadBtn.addEventListener('click', () => {
-  letterOverlay.classList.add('visible');
-});
+letterOverlay.addEventListener('click', (e) => { if (e.target === letterOverlay) closeLetter(); });
+rereadBtn.addEventListener('click', () => { letterOverlay.classList.add('visible'); });
 
 // Lightbox
 const lightbox = document.getElementById('lightbox');
