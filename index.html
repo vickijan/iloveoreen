@@ -32,7 +32,11 @@
     width: 90px;
     pointer-events: none;
     z-index: 1;
+    opacity: 0;
+    transition: opacity 0.6s ease;
   }
+
+  .doodle-float.visible{ opacity: 1; }
 
   .doodle-float img{
     width: 100%;
@@ -301,7 +305,7 @@
 
   /* Note cards */
   .note-card{
-    width: 240px;
+    width: 260px;
     min-height: 170px;
     padding: 22px 20px;
     font-family:'IBM Plex Serif', serif;
@@ -323,6 +327,14 @@
   .note-teaser{ color: var(--ink-soft); font-size: 1.15rem; }
   .note-card.open .note-body{ display:block; }
   .note-card.open .note-teaser{ display:none; }
+
+  .note-photo{
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 12px;
+    cursor: zoom-in;
+  }
 
   /* Photo frames */
   .photo-card{
@@ -515,18 +527,21 @@ const CONFIG = {
 
   boardEyebrow: "to Oreen with love...",
   boardTitle: "a very special birthday box",
-  boardSub: "Here's a little digital keepsake you can always fit us in your pocket! Tap around to explore the contents.",
+  boardSub: "Here's something of us you can always fit us in your pocket! Tap around to explore the contents.",
 
   // Personal notes. Add as many as you want.
+  // Add a "photo" URL to any note to show an image once it's opened.
+  // Leave photo empty ("") for a note with no image.
   notes: [
     {
       title: "Open me!!!!!",
-      body: "Did a little research and found some coffee shops that I thought were sooo cute in Chi." +
-        " Hope you get to check them out!! When you do, coffee's on me :)"
+      photo: "https://www.tripadvisor.in/Restaurant_Review-g35805-d12715112-Reviews-Sawada_Coffee-Chicago_Illinois.html",
+      body: "Sawada. The military latte seems intriguing."
     },
     {
       title: "Open me too!!!!!!",
-      body: "1. Sawada<br><br>2. Buttercup<br><br>(check your email)"
+      photo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPCJL9f3FCGeBqkSLgNMwkWY8myEaGICDOF3fi0tk4-izrO36-cJnzLP8&s=10",
+      body: "Buttercup! This place looks sooo sweet"
     }
   ],
 
@@ -548,15 +563,16 @@ const CONFIG = {
   },
 
   // Floating image stickers, scattered across the page.
+  // These only fade in once the tin has been opened.
   stickers: [
     { src: "https://i.imgur.com/9LvHbVl.png", top: "8%",  left: "6%",  rotate: "-8deg", width: "80px" },   // heart, upper left
     { src: "https://i.imgur.com/kE0j4Lb.png", top: "10%", left: "82%", rotate: "10deg", width: "85px" },   // star, upper right
     { src: "https://i.imgur.com/gPuiK2d.png", top: "48%", left: "88%", rotate: "-5deg", width: "90px" },   // waldo, right middle
     { src: "https://i.imgur.com/QcRsMpM.png", top: "48%", left: "4%",  rotate: "6deg",  width: "90px" },   // cake, left middle
-    { src: "https://i.imgur.com/OsMyfEQ.png", top: "70%", left: "50%", rotate: "-4deg", width: "75px" }    // pepper, extra space
+    { src: "https://i.imgur.com/OsMyfEQ.png", top: "74%", left: "4%",  rotate: "-4deg", width: "97px" }    // pepper, moved left, enlarged 30%, equal spacing between cake and bottom
   ],
 
-  footerNote: "love you so much — miss you, see you soon"
+  footerNote: "love you so much — miss you, see you soon <3"
 };
 
 /* ================= rendering (no need to edit below) ================= */
@@ -583,14 +599,22 @@ CONFIG.notes.forEach((note) => {
     <div class="tape"></div>
     <div class="note-title">${note.title}</div>
     <div class="note-teaser">tap to read &rarr;</div>
-    <div class="note-body">${note.body}</div>
+    <div class="note-body">
+      ${note.photo ? `<img class="note-photo" src="${note.photo}" alt="">` : ''}
+      <div class="note-text">${note.body}</div>
+    </div>
   `;
-  const toggle = () => {
+  const toggle = (e) => {
+    // If they tapped the photo inside an already-open note, zoom it instead of closing the note.
+    if (e.target.classList.contains('note-photo') && card.classList.contains('open')) {
+      openLightbox(e.target.src, note.title);
+      return;
+    }
     const isOpen = card.classList.toggle('open');
     card.setAttribute('aria-expanded', String(isOpen));
   };
   card.addEventListener('click', toggle);
-  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
   grid.appendChild(card);
 });
 
@@ -632,7 +656,7 @@ if (CONFIG.song) {
   grid.appendChild(wrapper);
 }
 
-// Floating image stickers, scattered across the page
+// Floating image stickers — built now, but kept invisible until the box is opened.
 CONFIG.stickers.forEach((sticker) => {
   const wrap = document.createElement('div');
   wrap.className = 'doodle-float';
@@ -644,6 +668,10 @@ CONFIG.stickers.forEach((sticker) => {
   document.body.appendChild(wrap);
 });
 
+function showStickers(){
+  document.querySelectorAll('.doodle-float').forEach((el) => el.classList.add('visible'));
+}
+
 // ---------------- Cover -> letter -> board flow ----------------
 const cover = document.getElementById('cover');
 const board = document.getElementById('board');
@@ -653,6 +681,7 @@ const rereadBtn = document.getElementById('reread-letter');
 
 document.getElementById('tin-button').addEventListener('click', () => {
   cover.classList.add('opening');
+  showStickers();
   setTimeout(() => {
     cover.classList.add('hidden');
     // Show the letter first, instead of jumping straight to the board.
