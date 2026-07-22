@@ -28,18 +28,18 @@
 }
 
   .doodle-float{
-  position: absolute;
-  width: 90px;
-  pointer-events: none;
-  z-index: 1;
-}
+    position: absolute;
+    width: 90px;
+    pointer-events: none;
+    z-index: 1;
+  }
 
-.doodle-float img{
-  width: 100%;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 6px 10px var(--shadow));
-}
+  .doodle-float img{
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 6px 10px var(--shadow));
+  }
 
   *{ box-sizing: border-box; }
 
@@ -385,21 +385,6 @@
   .song-title{ margin-top:2px; }
   .song-link{ color: var(--rose); text-decoration: underline; font-size: 0.85rem; }
 
-  /* Doodle stickers (decorative, no click needed) */
-  .sticker{
-    width: 90px;
-    height: 90px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:none;
-    background: none;
-    cursor: default;
-  }
-
-  .sticker svg{ width: 100%; height: 100%; transition: transform 0.3s ease; }
-  .sticker:hover svg{ transform: scale(1.12) rotate(-6deg); }
-
   /* Lightbox */
   #lightbox{
     position: fixed;
@@ -525,7 +510,7 @@ const CONFIG = {
   // The letter that pops up right after the tin opens.
   letter: {
     title: "Dear Oreen,",
-    body: "Happy birthday to my favorite person! I put this whole little box together because I wanted you to have something to open even though I couldn't be there in person.\n\nI hope this year brings you everything you deserve. I love you so much.\n\nLove,\nVicki"
+    body: "Happy birthday bean!!! I love you sooo much and am so grateful to have you in my life.\n\nSince I couldn't celebrate with you in person this year, I figured I'd throw together this little digital present. I'm so excited for you and your upcoming chapter in Chicago. I did a little research and found these places that were so cute to me (and supposedly are good). Hopefully, you'll get to check them out-- when you do, coffee's on me :).\n\nLove,\nVicki"
   },
 
   boardEyebrow: "to Oreen with love...",
@@ -562,25 +547,14 @@ const CONFIG = {
     embed: "https://open.spotify.com/embed/track/3SeDS5sSoWnwAZvVgkdKzf?utm_source=generator&si=353fe974502b4506"
   },
 
+  // Floating image stickers, scattered across the page.
   stickers: [
-  { src: "https://i.imgur.com/9LvHbVl.png", top: "8%",  left: "6%",  rotate: "-8deg", width: "80px" },   // heart, upper left
-  { src: "https://i.imgur.com/kE0j4Lb.png", top: "10%", left: "82%", rotate: "10deg", width: "85px" },   // star, upper right
-  { src: "https://i.imgur.com/gPuiK2d.png", top: "48%", left: "88%", rotate: "-5deg", width: "90px" },   // waldo, right middle
-  { src: "https://i.imgur.com/QcRsMpM.png", top: "48%", left: "4%",  rotate: "6deg",  width: "90px" },   // cake, left middle
-  { src: "https://i.imgur.com/OsMyfEQ.png", top: "70%", left: "50%", rotate: "-4deg", width: "75px" }    // pepper, extra space
-],
-
-  // Floating image stickers, scattered across the page
-CONFIG.stickers.forEach((sticker) => {
-  const wrap = document.createElement('div');
-  wrap.className = 'doodle-float';
-  wrap.style.top = sticker.top;
-  wrap.style.left = sticker.left;
-  wrap.style.width = sticker.width || '90px';
-  wrap.style.transform = `rotate(${sticker.rotate || '0deg'})`;
-  wrap.innerHTML = `<img src="${sticker.src}" alt="">`;
-  document.body.appendChild(wrap);
-});
+    { src: "https://i.imgur.com/9LvHbVl.png", top: "8%",  left: "6%",  rotate: "-8deg", width: "80px" },   // heart, upper left
+    { src: "https://i.imgur.com/kE0j4Lb.png", top: "10%", left: "82%", rotate: "10deg", width: "85px" },   // star, upper right
+    { src: "https://i.imgur.com/gPuiK2d.png", top: "48%", left: "88%", rotate: "-5deg", width: "90px" },   // waldo, right middle
+    { src: "https://i.imgur.com/QcRsMpM.png", top: "48%", left: "4%",  rotate: "6deg",  width: "90px" },   // cake, left middle
+    { src: "https://i.imgur.com/OsMyfEQ.png", top: "70%", left: "50%", rotate: "-4deg", width: "75px" }    // pepper, extra space
+  ],
 
   footerNote: "love you so much — miss you, see you soon"
 };
@@ -657,6 +631,18 @@ if (CONFIG.song) {
   `;
   grid.appendChild(wrapper);
 }
+
+// Floating image stickers, scattered across the page
+CONFIG.stickers.forEach((sticker) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'doodle-float';
+  wrap.style.top = sticker.top;
+  wrap.style.left = sticker.left;
+  wrap.style.width = sticker.width || '90px';
+  wrap.style.transform = `rotate(${sticker.rotate || '0deg'})`;
+  wrap.innerHTML = `<img src="${sticker.src}" alt="">`;
+  document.body.appendChild(wrap);
+});
 
 // ---------------- Cover -> letter -> board flow ----------------
 const cover = document.getElementById('cover');
